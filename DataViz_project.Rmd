@@ -1,0 +1,159 @@
+---
+title: "Analysis of sales at the Meuh Folle festival"
+author: "[Alexandre Juppet, Romain Guegan, Victorien Melot](https://github.com/alexandrejup)"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+mail: "alexandre.juppet@mines-ales.org"
+github: "AlexandreJup"
+
+
+output:
+  epuRate::epurate:
+    toc: TRUE
+    number_sections: FALSE
+    code_folding: "hide"
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+#Introduction
+<br>
+ Pour ce projet , nous nous sommes intéressés au Festival de la Meuh Folle et plus particulièrement aux cartes Cashless qui permettent aux festivaliers d'acheter à manger et à boire au bar.
+ 
+ Lorsqu'une personne consomme au bar, il paye directement avec sa carte cashless qu'il aura crédité auparavant. Chaque transaction est enregistrée dans des fichiers .csv. Nous avons donc récupéré ces csv que nous avons analysé.
+
+<br><br>
+
+# Bibliothèques utilisées
+
+<br>
+Nous commençons par importer les bibliothèques nécessaires pour créer les graphes :
+```{r library import}
+
+#load libraries
+library(epuRate)
+library(markdown)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(xts)
+library(dygraphs)
+library(xts)  
+library(tidyr)
+library(tidyverse)
+library(lubridate)
+library(hms)
+library(plotly)
+``` 
+<br>
+
+
+
+
+# Graphes
+## [Lollipop] Répartition des ventes
+
+Nous travaillons sur le dataset *article-value* pour connaître la répartition des ventes de chaque article.
+
+```{r}
+data <- read_csv("Article-Value.csv")
+p<-data %>%
+  arrange(Value)%>% # trier nos article par valeur
+  mutate(Article=factor(Article, Article))%>% # trier nos article par valeur
+  ggplot(aes(x=Article, y=Value)) +
+    geom_segment(aes(x=Article, xend=Article, y=0, yend=Value), color="#69b3a2")+
+    geom_point( color="#f4aa42",size=3, alpha=0.7)+
+    coord_flip()+ # permet d'inverser les axes des x et y
+    
+    xlab("Article")+ # légende des axes
+    ylab("Nombre d'article vendus")
+
+ggplotly(p)
+
+```
+
+<br><br>
+
+## [Histogram] Montant des transactions
+
+<br>
+D'autre part nous nous sommes intéressés aux montants des transactions : combien une personne dépense-t-elle lorsqu'elle consomme au bar?
+Nous avons donc réalisé un histogramme de la répartition des montants des transactions.
+<br>
+```{r}
+data2 <- read_csv("flow.csv")
+d<-data2 %>%
+  mutate(myText=paste("Transactions de" ,amount, "euros"))%>% # on réalise une nouvelle colonne pour un meilleur affichage de notre histogramme interactif
+  filter(amount<=0, amount >=-25)%>% # on ne souhaite que les dépenses et on filtre de 0 à -25??? pour voir ce que l'on cherche
+  ggplot(aes(x=amount, text=myText)) +
+    geom_histogram(binwidth = 0.5, fill="skyblue", color="black", size=0.1)+
+     # permet d'inverser les axes des x et y
+    xlab("Montant de la transaction")+
+    ylab("Nombre de transaction") +
+    annotate("text",x=-3,y=4550,color="#f4aa42" ,size=3, label="Pic pour 3 euros")+ # il s'agit des annotations
+    annotate("text",x=-6,y=2700,color="#f4aa42" ,size=3, label="Pic pour 6 euros")+
+    annotate("text",x=-9,y=900,color="#f4aa42" ,size=3, label="Pic pour 9 euros")+
+    annotate("text",x=-12,y=420,color="#f4aa42" ,size=3, label="Pic pour 12 euros")+
+    theme(
+          panel.border=element_blank(), # permet de cacher les bords
+          axis.ticks.y=element_blank(),
+          axis.title=element_text(colour="#f4aa42",size=15, face="italic", family="serif"),
+          axis.text.y=element_text(colour="skyblue", family="serif")
+          
+      )
+#arrows(1995,123,2002,110.5,lwd=2,col="blue", length = 0.1,angle=20)
+ggplotly(d,tooltip=c("count","text"))
+```
+<br>
+On remarque rapidement des "pics" locaux. En effet les transactions qui correspondent à des multiples de 3 euros sont plus nombreuses, c'est à dire pour des transactions d'un montant de 3, 6, 9, 12... etc euros. Cela correspond aux personnes qui achetent une ou plusieurs bières.
+
+
+
+<br><br>
+
+##[Time Series] Evolution de la vente de bière durant le festival
+
+<br>
+Comme nous savons que les bières sont les articles les plus vendus durant le festival, nous voulons connaître l'évolution des ventes durant les deux soirées du festival.
+
+Nous utilisons cette fois ci le dataset **sales_by_minutes**, nous allons constuire un graphe nous permettant de visualiser la *vente de bières par minute*.
+
+Voici le dataset utilisé :
+```{r dataset }
+sales_by_minutes <- read.csv("sales_by_minutes.csv", header = TRUE)
+sales_by_minutes %>%
+  head(10)
+```
+<br>
+
+Nous nous intéresseons à la colonne du nombre de bières vendues chaque minute durant le festival : **Bieres.25cl** On doit cependant convertir au format **ymd_hms** la colonne *datetime* pour pouvoir créer un graphe Time Series.
+<br>
+
+```{r modif datetime}
+sales_by_minutes$datetime <- ymd_hms(sales_by_minutes$datetime)
+head(sales_by_minutes, 10)
+```
+ 
+<br>
+Graphe *Time Series* représentant l'évolution de ventes de bières durant le festival :
+
+```{r interactive chart}
+
+don <- xts(x = sales_by_minutes$Biere.25cl, order.by = sales_by_minutes$datetime)
+
+dygraph(don) %>%
+  dyOptions(labelsUTC = TRUE, fillGraph=TRUE, fillAlpha=0.1, drawGrid = FALSE, colors="#D8AE5A") %>%
+  dyRangeSelector() %>%
+  dyCrosshair(direction = "vertical") %>%
+  dyHighlight(highlightCircleSize = 5, highlightSeriesBackgroundAlpha = 0.2, hideOnMouseOut = FALSE)  %>%
+  dyRoller(rollPeriod = 1)
+  
+  
+```
+<br>
+Ce graphe peut être très utile pour savoir à quelle heure les festivaliers ont consommé le plus aux bars, les pics de consommation correspondent aux heures de pauses entre les concerts.
+
+<br><br>
+
+Nous remercions [Yann Holtz](https://github.com/holtzy) à qui nous avons emprunté le template de la page.
