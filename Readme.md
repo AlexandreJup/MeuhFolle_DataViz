@@ -1,11 +1,13 @@
 Read Me
 -----------------------------------------
 
-Cette page réunit des informations tirée des données récoltées par les cartes de paiement automatique utilisées par les festivaliers de la Meuh Folle. Il s'agit d'un festival organisé par les étudiants de l'IMT Mines Alès et dans le cadre d'un projet de DataViz nous avons voulu étudier ces données.
+Cette page rÃ©unit des informations tirÃ©e des donnÃ©es rÃ©coltÃ©es par les cartes de paiement automatique utilisÃ©es par les festivaliers de la Meuh Folle. Il s'agit d'un festival organisÃ© par les Ã©tudiants de l'IMT Mines AlÃ¨s et dans le cadre d'un projet de visualisation de donnÃ©es nous avons voulu Ã©tudier ces donnÃ©es.
 
-Nous sommes aussi étudiants au sein de cette école et nous avons participé à l'édition en tant que bénévole. Il nous paraissait donc normal de continuer la démarche de volontariat vis à vis de notre travail.
+Nous sommes aussi Ã©tudiants au sein de cette Ã©cole et nous avons participÃ© Ã  l'Ã©dition en tant que bÃ©nÃ©vole. Il nous paraissait donc normal de continuer la dÃ©marche de volontariat vis Ã  vis de notre travail.
 
-On a donc représenté trois graphiques mettant en avant :
-La répartition des achats, 
-Le nombre de transactions en fonction du montant de celle-ci,
-L'évolution des ventes de bières en fonction du temps.
+Nous avons donc reprÃ©sentÃ© trois graphiques mettant en avant :
+* La rÃ©partition des achats
+* Le nombre de transactions en fonction du montant de celle-ci
+* L'Ã©volution des ventes de biÃ¨res en fonction du temps
+
+Vous pouvez accÃ©der au notebook du projet Ã  l'adresse suivante : https://alexandrejup.github.io/MeuhFolle_DataViz/
