@@ -11,3 +11,6 @@ Nous avons donc représenté trois graphiques mettant en avant :
 * L'évolution des ventes de bières en fonction du temps
 
 Vous pouvez accéder au notebook du projet à l'adresse suivante : https://alexandrejup.github.io/MeuhFolle_DataViz/
+
+
+**Un grand merci à Yan Holtz (https://github.com/holtzy) pour le template du notebook, le visuel est agréable à consulter !** 
